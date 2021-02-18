@@ -121,6 +121,25 @@ class PQC:
             c.u3(self.eta2[self.layer-1],self.phi2[self.layer-1],self.t2[self.layer-1],0);
             temp = c.to_gate().control(1);
             self.circ.append(temp,[self.layer-1,0]);
+        if self.name == "new5":
+            self.y = ParameterVector('θ_i',layer);
+            self.z = ParameterVector('ϕ_i',layer);
+            self.eta = ParameterVector('η', layer);
+            self.phi = ParameterVector('ϕ', layer);
+            self.t = ParameterVector('t',layer);
+            for i in range(self.layer):
+                self.circ.ry(self.y[i],i);
+                self.circ.rz(self.z[i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1,name="U");
+                c.u3(self.eta[i],self.phi[i],self.t[i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1,name="U");
+            c.u3(self.eta[self.layer-1],self.phi[self.layer-1],self.t[self.layer-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+
                 
 
     def get(self):
@@ -190,6 +209,17 @@ class PQC:
             self.circ5 = self.circ4.bind_parameters({self.phi2: np.random.uniform(0,2*np.pi,self.layer)});
             self.circ6 = self.circ5.bind_parameters({self.t2: np.random.uniform(0,2*np.pi,self.layer)});
             result = execute(self.circ6,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+        if self.name == "new5":
+            self.circ1 = self.circ.bind_parameters({self.y: np.arccos(-np.random.uniform(-1,1,self.layer))});
+            self.circ2 = self.circ1.bind_parameters({self.z: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.eta: np.arccos(-np.random.uniform(-1,1,self.layer))});
+            self.circ4 = self.circ3.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ5 = self.circ4.bind_parameters({self.t: np.random.uniform(0,2*np.pi,self.layer)});
+            
+            result = execute(self.circ5,self.backend).result();
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
