@@ -36,6 +36,17 @@ class PQC:
                 c.rz(self.theta3[i],0);
                 temp = c.to_gate().control(1);
                 self.circ.append(temp,[i,i+1]);
+        if self.name == "new1":
+            self.eta = ParameterVector('η', layer-1);
+            self.phi = ParameterVector('ϕ', layer-1);
+            self.t = ParameterVector('t',layer-1);
+            for i in range(self.layer):
+                self.circ.h(i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1,name="U");
+                c.u3(self.eta[i],self.phi[i],self.t[i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
 
     def get(self):
         if self.name == "rcz":
@@ -50,6 +61,14 @@ class PQC:
             self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
             self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer)});
             self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer-1)});
+            result = execute(self.circ3,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+        if self.name =="new1":
+            self.circ1 = self.circ.bind_parameters({self.eta: np.arccos(-np.random.uniform(-1,1,self.layer-1))});
+            self.circ2 = self.circ1.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer-1)});
+            self.circ3 = self.circ2.bind_parameters({self.t: np.random.uniform(0,2*np.pi,self.layer-1)});
             result = execute(self.circ3,self.backend).result();
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
@@ -101,7 +120,7 @@ Entangling capability
 """
 
 def I(b,j,n,vec):
-    newvec = np.zeros((2**(n-1),1));
+    newvec = np.zeros((2**(n-1),1), dtype=complex);
     for new_index in range(2**(n-1)):
         original_index = new_index%(2**(n-j)) + (new_index//(2**(n-j)))*(2**(n-j+1)) + b*(2**(n-j));
         newvec[new_index]=vec[int(original_index)];
