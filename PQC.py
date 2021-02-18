@@ -47,6 +47,26 @@ class PQC:
                 c.u3(self.eta[i],self.phi[i],self.t[i],0);
                 temp = c.to_gate().control(1);
                 self.circ.append(temp,[i,i+1]);
+        if self.name == "new2":
+            self.eta1 = ParameterVector('η1', layer-1);
+            self.phi1 = ParameterVector('ϕ1', layer-1);
+            self.t1 = ParameterVector('t1',layer-1);
+            self.eta2 = ParameterVector('η2', layer-1);
+            self.phi2 = ParameterVector('ϕ2', layer-1);
+            self.t2 = ParameterVector('t2',layer-1);
+            for i in range(self.layer):
+                self.circ.h(i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1,name="U");
+                c.u3(self.eta1[i],self.phi1[i],self.t1[i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1,name="U");
+                c.u3(self.eta2[i],self.phi2[i],self.t2[i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+                
 
     def get(self):
         if self.name == "rcz":
@@ -70,6 +90,17 @@ class PQC:
             self.circ2 = self.circ1.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer-1)});
             self.circ3 = self.circ2.bind_parameters({self.t: np.random.uniform(0,2*np.pi,self.layer-1)});
             result = execute(self.circ3,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+        if self.name =="new2":
+            self.circ1 = self.circ.bind_parameters({self.eta1: np.arccos(-np.random.uniform(-1,1,self.layer-1))});
+            self.circ2 = self.circ1.bind_parameters({self.phi1: np.random.uniform(0,2*np.pi,self.layer-1)});
+            self.circ3 = self.circ2.bind_parameters({self.t1: np.random.uniform(0,2*np.pi,self.layer-1)});
+            self.circ4 = self.circ3.bind_parameters({self.eta2: np.arccos(-np.random.uniform(-1,1,self.layer-1))});
+            self.circ5 = self.circ4.bind_parameters({self.phi2: np.random.uniform(0,2*np.pi,self.layer-1)});
+            self.circ6 = self.circ5.bind_parameters({self.t2: np.random.uniform(0,2*np.pi,self.layer-1)});
+            result = execute(self.circ6,self.backend).result();
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
