@@ -36,6 +36,19 @@ class PQC:
                 c.rz(self.theta3[i],0);
                 temp = c.to_gate().control(1);
                 self.circ.append(temp,[i,i+1]);
+        if self.name == "new0":
+            # U gate가 진짜 uniform한지 확인하기 위함입니다.
+            self.y = ParameterVector('θ_i',layer);
+            self.z = ParameterVector('ϕ_i',layer);
+            self.eta = ParameterVector('η', layer);
+            self.phi = ParameterVector('ϕ', layer);
+            self.t = ParameterVector('t',layer);
+            for i in range(self.layer):
+                self.circ.ry(self.y[i],i);
+                self.circ.rz(self.z[i],i);
+            for i in range(self.layer):
+                self.circ.u3(self.eta[i],self.phi[i],self.t[i],i);
+        
         if self.name == "new1":
             self.eta = ParameterVector('η', layer-1);
             self.phi = ParameterVector('ϕ', layer-1);
@@ -127,6 +140,18 @@ class PQC:
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
+        if self.name == "new0":
+            self.circ1 = self.circ.bind_parameters({self.y: np.arccos(-np.random.uniform(-1,1,self.layer))});
+            self.circ2 = self.circ1.bind_parameters({self.z: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.eta: np.arccos(-np.random.uniform(-1,1,self.layer))});
+            self.circ4 = self.circ3.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ5 = self.circ4.bind_parameters({self.t: np.random.uniform(0,2*np.pi,self.layer)});
+            
+            result = execute(self.circ5,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+
         if self.name =="new1":
             # parameter에 랜덤한 값을 샘플링해서 할당해줍니다
             # eta의 경우엔, 원래 theta = arccos(-eta)가 들어가야하는데 위에서 잘 해결되지 않아서 여기서 변환해줬습니다.
@@ -168,6 +193,7 @@ class PQC:
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
+
 
     def draw(self):
         self.circ.draw('mpl');
