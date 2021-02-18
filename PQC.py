@@ -101,7 +101,7 @@ Entangling capability
 """
 
 def I(b,j,n,vec):
-    newvec = np.zeros((2**(n-1),1));
+    newvec = np.zeros((2**(n-1),1), dtype=complex);
     for new_index in range(2**(n-1)):
         original_index = new_index%(2**(n-j)) + (new_index//(2**(n-j)))*(2**(n-j+1)) + b*(2**(n-j));
         newvec[new_index]=vec[int(original_index)];
