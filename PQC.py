@@ -43,10 +43,10 @@ class PQC:
             for i in range(self.layer):
                 self.circ.h(i);
             for i in range(self.layer-1):
-                c = QuantumCircuit(1,name="U");
-                c.u3(self.eta[i],self.phi[i],self.t[i],0);
-                temp = c.to_gate().control(1);
-                self.circ.append(temp,[i,i+1]);
+                c = QuantumCircuit(1,name="U");             # 1 qubit짜리 회로를 생성합니다
+                c.u3(self.eta[i],self.phi[i],self.t[i],0);  # U gate를 적용시킵니다.
+                temp = c.to_gate().control(1);              # 윗 두 줄에서 만든 회로를 1개의 qubit이 control할 것이라고 말해줍니다
+                self.circ.append(temp,[i,i+1]);             # 원래의 회로에 위치를 지정해서 추가합니다
         if self.name == "new2":
             self.eta1 = ParameterVector('η1', layer-1);
             self.phi1 = ParameterVector('ϕ1', layer-1);
@@ -128,9 +128,12 @@ class PQC:
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
         if self.name =="new1":
+            # parameter에 랜덤한 값을 샘플링해서 할당해줍니다
+            # eta의 경우엔, 원래 theta = arccos(-eta)가 들어가야하는데 위에서 잘 해결되지 않아서 여기서 변환해줬습니다.
             self.circ1 = self.circ.bind_parameters({self.eta: np.arccos(-np.random.uniform(-1,1,self.layer-1))});
             self.circ2 = self.circ1.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer-1)});
             self.circ3 = self.circ2.bind_parameters({self.t: np.random.uniform(0,2*np.pi,self.layer-1)});
+            # State vector를 얻으면 됩니다!
             result = execute(self.circ3,self.backend).result();
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
