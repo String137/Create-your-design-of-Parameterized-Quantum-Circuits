@@ -1,0 +1,10 @@
+circ = QuantumCircuit(4)
+
+theta = Parameter('θ')
+n = 4
+
+circ.rz(theta, range(4))
+circ.cx(0, 3)
+for i in reversed(range(n-1)):
+    circ.cx(i+1, i)
+circ.draw()
