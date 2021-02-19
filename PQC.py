@@ -4,6 +4,8 @@ from matplotlib import pyplot as plt
 from scipy.stats import rv_continuous
 from qiskit.circuit import Parameter, ParameterVector
 from qiskit import *
+from sklearn.metrics.cluster import adjusted_mutual_info_score as mi
+
 
 
 class PQC:
@@ -51,9 +53,33 @@ class PQC:
                 temp = c.to_gate().control(1);
                 self.circ.append(temp,[i,i+1]);
             c = QuantumCircuit(1, name="Rx");
-            c.rz(self.theta3[i],0);
+            c.rx(self.theta3[self.layer-1],0);
             temp = c.to_gate().control(1);
             self.circ.append(temp,[self.layer-1,0]);
+        if self.name == "circ4ca":
+            self.theta1 = ParameterVector('θ1', layer);
+            self.theta2 = ParameterVector('θ2', layer);
+            self.theta3 = ParameterVector('θ3', layer);
+            self.theta4 = ParameterVector('θ4', layer);
+            self.theta5 = ParameterVector('θ5', layer);
+            # print(self.theta1)
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta3[i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta3[self.layer-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            for i in range(self.layer):
+                self.circ.rx(self.theta4[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta5[i],i);
 
         if self.name == "V":
             self.theta = ParameterVector('θ',layer);
@@ -240,6 +266,16 @@ class PQC:
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
+        if self.name == "circ4ca":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ4 = self.circ3.bind_parameters({self.theta4: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ5 = self.circ4.bind_parameters({self.theta5: np.random.uniform(0,2*np.pi,self.layer)});
+            result = execute(self.circ5,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
 
         if self.name == "V":
             self.circ1 = self.circ.bind_parameters({self.theta: np.random.uniform(0,np.pi,self.layer)});
@@ -376,15 +412,18 @@ class Haar_dist(rv_continuous):
 def expressibility(pqc, reps):
     arr = [];
     for i in range(reps):
-        fid = np.abs(pqc.get().getH()*pqc.get())**2;
+        v1 = pqc.get().getH();
+        v2 = pqc.get();
+        fid = np.abs(v1*v2)**2;
+        # print(v1,"&&",v2,"&&",np.abs(v1*v2),"&&",fid,"\n\n");
         arr.append(fid[0,0]);
         if i%100==0 and i!=0:
             print(i,"\n");
     haar = [];
     h = Haar_dist(a=0,b=1,name="haar");
     for i in range(reps):
-        haar.append(h.ppf((i+0.5)/reps,pqc.layer));
-    n_bins = 100;
+        haar.append(h.ppf((i+1)/reps,pqc.layer));
+    n_bins = 75;
     haar_pdf = plt.hist(np.array(haar), bins=n_bins, alpha=0.5)[0]/reps; 
     pqc_pdf = plt.hist(np.array(arr), bins=n_bins, alpha=0.5)[0]/reps;
     kl = kl_divergence(pqc_pdf,haar_pdf);
