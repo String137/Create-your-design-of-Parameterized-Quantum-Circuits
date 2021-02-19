@@ -87,7 +87,7 @@ class PQC:
             c.rx(self.theta1[self.layer*3-1],0);
             temp = c.to_gate().control(1);
             self.circ.append(temp,[self.layer-1,0]);
-            # self.circ.barrier();
+            self.circ.barrier();
             for i in range(self.layer):
                 self.circ.rx(self.theta2[i],i);
             for i in range(self.layer):
@@ -99,6 +99,189 @@ class PQC:
                 self.circ.append(temp,[i,i+1]);
             c = QuantumCircuit(1, name="Rx");
             c.rx(self.theta2[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+
+        if self.name == "3circ19":
+            self.theta1 = ParameterVector('θ1', 3*layer);
+            self.theta2 = ParameterVector('θ2', 3*layer);
+            self.theta3 = ParameterVector('θ3', 3*layer);
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta1[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta1[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta1[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta2[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta2[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta2[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta3[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta3[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta3[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta3[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+
+        if self.name == "4circ19":
+            self.theta1 = ParameterVector('θ1', 3*layer);
+            self.theta2 = ParameterVector('θ2', 3*layer);
+            self.theta3 = ParameterVector('θ3', 3*layer);
+            self.theta4 = ParameterVector('θ4', 3*layer);
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta1[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta1[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta1[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta2[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta2[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta2[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta3[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta3[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta3[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta3[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta4[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta4[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta4[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta4[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+        
+        if self.name == "5circ19":
+            self.theta1 = ParameterVector('θ1', 3*layer);
+            self.theta2 = ParameterVector('θ2', 3*layer);
+            self.theta3 = ParameterVector('θ3', 3*layer);
+            self.theta4 = ParameterVector('θ4', 3*layer);
+            self.theta5 = ParameterVector('θ5', 3*layer);
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta1[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta1[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta1[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta2[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta2[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta2[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta3[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta3[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta3[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta3[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta4[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta4[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta4[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta4[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta5[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta5[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta5[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta5[self.layer*3-1],0);
             temp = c.to_gate().control(1);
             self.circ.append(temp,[self.layer-1,0]);
         
@@ -118,10 +301,10 @@ class PQC:
             c.rx(self.theta1[self.layer*3-1],0);
             temp = c.to_gate().control(1);
             self.circ.append(temp,[self.layer-1,0]);
-            # self.circ.barrier();
+            self.circ.barrier();
             for i in range(self.layer):
                 self.circ.x(i);
-            # self.circ.barrier();
+            self.circ.barrier();
             for i in range(self.layer):
                 self.circ.rx(self.theta2[i],i);
             for i in range(self.layer):
@@ -421,6 +604,35 @@ class PQC:
             self.statevector = np.asmatrix(out_state).T;
             # print(self.statevector);
             # print("\n\n\n\n*******\n\n\n\n");
+            return self.statevector;
+        if self.name == "3circ19":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer*3)});
+            
+            result = execute(self.circ3,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+        if self.name == "4circ19":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ4 = self.circ3.bind_parameters({self.theta4: np.random.uniform(0,2*np.pi,self.layer*3)});
+            
+            result = execute(self.circ4,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+        if self.name == "5circ19":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ4 = self.circ3.bind_parameters({self.theta4: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ5 = self.circ4.bind_parameters({self.theta5: np.random.uniform(0,2*np.pi,self.layer*3)});            
+            result = execute(self.circ5,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
         if self.name == "circ6":
             self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
