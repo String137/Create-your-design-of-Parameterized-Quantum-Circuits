@@ -56,6 +56,86 @@ class PQC:
             c.rx(self.theta3[self.layer-1],0);
             temp = c.to_gate().control(1);
             self.circ.append(temp,[self.layer-1,0]);
+        if self.name == "circ19":
+            self.theta1 = ParameterVector('θ1', 3*layer);
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta1[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta1[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta1[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+        if self.name == "2circ19":
+            self.theta1 = ParameterVector('θ1', 3*layer);
+            self.theta2 = ParameterVector('θ2', 3*layer);
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta1[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta1[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta1[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            # self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta2[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta2[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta2[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+        
+        if self.name == "2circ19x":
+            self.theta1 = ParameterVector('θ1', 3*layer);
+            self.theta2 = ParameterVector('θ2', 3*layer);
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta1[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta1[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta1[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            # self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.x(i);
+            # self.circ.barrier();
+            for i in range(self.layer):
+                self.circ.rx(self.theta2[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[self.layer+i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta2[self.layer*2+i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta2[self.layer*3-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+
         if self.name == "circ6":
             
             self.theta1 = ParameterVector('θ1', layer);
@@ -326,6 +406,22 @@ class PQC:
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
+        if self.name == "circ19":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer*3)});
+            result = execute(self.circ1,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+        if self.name == "2circ19" or self.name == "2circ19x":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer*3)});
+            self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer*3)});
+            
+            result = execute(self.circ2,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            # print(self.statevector);
+            # print("\n\n\n\n*******\n\n\n\n");
+            return self.statevector;
         if self.name == "circ6":
             self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
             self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer)});
@@ -503,8 +599,14 @@ def expressibility(pqc, reps):
     for i in range(reps):
         haar.append(h.ppf((i+1)/reps,pqc.layer));
     n_bins = 75;
-    haar_pdf = plt.hist(np.array(haar), bins=n_bins, alpha=0.5)[0]/reps; 
-    pqc_pdf = plt.hist(np.array(arr), bins=n_bins, alpha=0.5)[0]/reps;
+    haar_pdf = plt.hist(np.array(haar), bins=n_bins, alpha=0.5,range=(0,1))[0]/reps; 
+    pqc_pdf = plt.hist(np.array(arr), bins=n_bins, alpha=0.5, range=(0,1))[0]/reps;
+    # print(haar);
+    # print(arr);
+    # print(plt.hist(np.array(haar), bins=n_bins, alpha=0.5))
+    # print(plt.hist(np.array(arr), bins=n_bins, alpha=0.5))
+    # print(haar_pdf)
+    # print(pqc_pdf);
     kl = kl_divergence(pqc_pdf,haar_pdf);
     plt.title("%s KL(P||Q) = %1.4f" % (pqc.name, kl))
     return kl;
