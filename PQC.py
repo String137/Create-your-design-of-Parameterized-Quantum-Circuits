@@ -36,6 +36,46 @@ class PQC:
                 c.rz(self.theta3[i],0);
                 temp = c.to_gate().control(1);
                 self.circ.append(temp,[i,i+1]);
+        if self.name == "V":
+            self.theta = ParameterVector('θ',layer);
+            self.phi = ParameterVector('φ',layer);
+            self.alpha = ParameterVector('⍺',layer);
+            for i in range(layer):
+                self.circ.h(i);
+            for i in range(layer):
+                V(self.circ,self.theta[i],self.phi[i],self.alpha[i],i);
+        if self.name == "V1":
+            self.theta0 = ParameterVector('θ0',layer);
+            self.theta1 = ParameterVector('θ1',layer);
+            self.theta = ParameterVector('θ',layer);
+            self.phi = ParameterVector('φ',layer);
+            self.alpha = ParameterVector('⍺',layer);
+            for i in range(layer):
+                self.circ.rx(self.theta0[i],i);
+            for i in range(layer):
+                self.circ.rz(self.theta1[i],i);
+            for i in range(layer):
+                V(self.circ,self.theta[i],self.phi[i],self.alpha[i],i);
+        if self.name == "circularcV":
+            self.theta0 = ParameterVector('θ0',layer);
+            self.theta1 = ParameterVector('θ1',layer);
+            self.theta = ParameterVector('θ',layer);
+            self.phi = ParameterVector('φ',layer);
+            self.alpha = ParameterVector('⍺',layer);
+            for i in range(layer):
+                self.circ.rx(self.theta0[i],i);
+            for i in range(layer):
+                self.circ.rz(self.theta1[i],i);
+            for i in range(layer-1):
+                c = QuantumCircuit(1,name="V");
+                V(c,self.theta[i],self.phi[i],self.alpha[i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1,name="V");
+            V(c,self.theta[layer-1],self.phi[layer-1],self.alpha[layer-1],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[layer-1,0]);
+            
         if self.name == "new0":
             # U gate가 진짜 uniform한지 확인하기 위함입니다.
             self.y = ParameterVector('θ_i',layer);
@@ -173,6 +213,38 @@ class PQC:
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
+
+        if self.name == "V":
+            self.circ1 = self.circ.bind_parameters({self.theta: np.random.uniform(0,np.pi,self.layer)});
+            self.circ2 = self.circ1.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.alpha: np.random.uniform(0,2*np.pi,self.layer)});
+            result = execute(self.circ3,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+
+        if self.name =="V1":
+            self.circ1 = self.circ.bind_parameters({self.theta0: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ2 = self.circ1.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.theta: np.random.uniform(0,np.pi,self.layer)});
+            self.circ4 = self.circ3.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ5 = self.circ4.bind_parameters({self.alpha: np.random.uniform(0,2*np.pi,self.layer)});
+            result = execute(self.circ5,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+
+        if self.name =="circularcV":
+            self.circ1 = self.circ.bind_parameters({self.theta0: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ2 = self.circ1.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.theta: np.random.uniform(0,np.pi,self.layer)});
+            self.circ4 = self.circ3.bind_parameters({self.phi: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ5 = self.circ4.bind_parameters({self.alpha: np.random.uniform(0,2*np.pi,self.layer)});
+            result = execute(self.circ5,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+
         if self.name == "new0":
             self.circ1 = self.circ.bind_parameters({self.y: np.arccos(-np.random.uniform(-1,1,self.layer))});
             self.circ2 = self.circ1.bind_parameters({self.z: np.random.uniform(0,2*np.pi,self.layer)});
@@ -337,3 +409,15 @@ unique-gate
 def unitary(circ,eta,phi,t):
     theta = np.arccos(-eta);
     circ.u3(theta,phi,t,0);
+
+def V(circ,theta,phi,alpha,i):
+    """
+    theta: 0 ~ π
+    phi: 0 ~ 2π
+    alpha: 0 ~ 2π
+    """
+    circ.rz(-phi,i);
+    circ.ry(-theta,i);
+    circ.rz(alpha,i);
+    circ.ry(theta,i);
+    circ.rz(phi,i);
