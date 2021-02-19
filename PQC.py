@@ -87,8 +87,6 @@ class PQC:
             for i in range(self.layer):
                 self.circ.rz(self.theta5[i],i);
 
-                    
-            
 
         if self.name == "circ19half":
             self.theta1 = ParameterVector('θ1', layer);
