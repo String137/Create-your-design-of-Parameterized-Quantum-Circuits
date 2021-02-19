@@ -56,6 +56,35 @@ class PQC:
             c.rx(self.theta3[self.layer-1],0);
             temp = c.to_gate().control(1);
             self.circ.append(temp,[self.layer-1,0]);
+
+        if self.name == "circ19half":
+            self.theta1 = ParameterVector('θ1', layer);
+            self.theta2 = ParameterVector('θ2', layer);
+            self.theta3 = ParameterVector('θ3', layer);
+            # print(self.theta1)
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta3[i]/2,0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta3[self.layer-1]/2,0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta3[i]/2,0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rx(self.theta3[self.layer-1]/2,0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+
         if self.name == "circ4ca":
             self.theta1 = ParameterVector('θ1', layer);
             self.theta2 = ParameterVector('θ2', layer);
@@ -259,6 +288,14 @@ class PQC:
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
         if self.name == "circ4c":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer)});
+            result = execute(self.circ3,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
+        if self.name == "circ19half":
             self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
             self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer)});
             self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer)});
