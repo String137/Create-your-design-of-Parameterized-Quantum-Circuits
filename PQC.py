@@ -33,9 +33,28 @@ class PQC:
                 self.circ.rz(self.theta2[i],i);
             for i in range(self.layer-1):
                 c = QuantumCircuit(1, name="Rx");
-                c.rz(self.theta3[i],0);
+                c.rx(self.theta3[i],0);
                 temp = c.to_gate().control(1);
                 self.circ.append(temp,[i,i+1]);
+        if self.name == "circ4c":
+            self.theta1 = ParameterVector('θ1', layer);
+            self.theta2 = ParameterVector('θ2', layer);
+            self.theta3 = ParameterVector('θ3', layer);
+            # print(self.theta1)
+            for i in range(self.layer):
+                self.circ.rx(self.theta1[i],i);
+            for i in range(self.layer):
+                self.circ.rz(self.theta2[i],i);
+            for i in range(self.layer-1):
+                c = QuantumCircuit(1, name="Rx");
+                c.rx(self.theta3[i],0);
+                temp = c.to_gate().control(1);
+                self.circ.append(temp,[i,i+1]);
+            c = QuantumCircuit(1, name="Rx");
+            c.rz(self.theta3[i],0);
+            temp = c.to_gate().control(1);
+            self.circ.append(temp,[self.layer-1,0]);
+
         if self.name == "V":
             self.theta = ParameterVector('θ',layer);
             self.phi = ParameterVector('φ',layer);
@@ -213,6 +232,14 @@ class PQC:
             out_state = result.get_statevector();
             self.statevector = np.asmatrix(out_state).T;
             return self.statevector;
+        if self.name == "circ4c":
+            self.circ1 = self.circ.bind_parameters({self.theta1: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ2 = self.circ1.bind_parameters({self.theta2: np.random.uniform(0,2*np.pi,self.layer)});
+            self.circ3 = self.circ2.bind_parameters({self.theta3: np.random.uniform(0,2*np.pi,self.layer)});
+            result = execute(self.circ3,self.backend).result();
+            out_state = result.get_statevector();
+            self.statevector = np.asmatrix(out_state).T;
+            return self.statevector;
 
         if self.name == "V":
             self.circ1 = self.circ.bind_parameters({self.theta: np.random.uniform(0,np.pi,self.layer)});
@@ -335,7 +362,7 @@ Expressibility
 def Haar(F,N):
     if F<0 or F>1:
         return 0;
-    return (N-1)*(1-F)**(N-2);
+    return (N-1)*((1-F)**(N-2));
 
 
 def kl_divergence(p, q):
@@ -343,7 +370,7 @@ def kl_divergence(p, q):
 
 class Haar_dist(rv_continuous):
     def _pdf(self,x,n):
-        return Haar(x,n*2);
+        return Haar(x,2**n);
 
 
 def expressibility(pqc, reps):
@@ -361,7 +388,7 @@ def expressibility(pqc, reps):
     haar_pdf = plt.hist(np.array(haar), bins=n_bins, alpha=0.5)[0]/reps; 
     pqc_pdf = plt.hist(np.array(arr), bins=n_bins, alpha=0.5)[0]/reps;
     kl = kl_divergence(pqc_pdf,haar_pdf);
-    plt.title('KL(P||Q) = %1.4f' % kl)
+    plt.title("%s KL(P||Q) = %1.4f" % (pqc.name, kl))
     return kl;
 
 
